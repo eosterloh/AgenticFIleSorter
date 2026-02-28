@@ -1,0 +1,8 @@
+watchdog
+
+ollama
+langchain
+langchain-ollama
+
+pypdf2
+python-docx
