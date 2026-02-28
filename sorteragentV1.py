@@ -57,9 +57,9 @@ llm_with_tools = model.bind_tools([move_file, make_new_dir], tool_choice="any")
 
 def get_system_prompt(filepath):
     directories_to_scan = [
-        "/Users/erickosterloh/ComputerScienceCourseWork",
-        "/Users/erickosterloh/OtherSchoolWork",
-        "/Users/erickosterloh/Misc"
+        str(Path.home() / "ComputerScienceCourseWork"),
+        str(Path.home() / "OtherSchoolWork"),
+        str(Path.home() / "Misc")
     ]
     
     current_tree = {}
@@ -75,31 +75,32 @@ def get_system_prompt(filepath):
     filename = filepath.split("/")[-1]
     filecontent = read_file_forLLM(filepath)
 
+    home_dir = str(Path.home())
     return (
         "system", 
         f"""You are an autonomous file-sorting agent. Your job is to organize my files into the correct directories based on their context and file type.
 
 ### DIRECTORY RULES
-Base Directory: /Users/erickosterloh
+Base Directory: {home_dir}
 
 1. RESTRICTED DIRECTORIES (DO NOT TOUCH OR MOVE FILES FROM HERE):
-   - /Users/erickosterloh/Applications
-   - /Users/erickosterloh/Movies
-   - /Users/erickosterloh/Pictures
-   - /Users/erickosterloh/go
-   - /Users/erickosterloh/Public
-   - /Users/erickosterloh/node_modules
-   - /Users/erickosterloh/PersonalProjects
+   - {home_dir}/Applications
+   - {home_dir}/Movies
+   - {home_dir}/Pictures
+   - {home_dir}/go
+   - {home_dir}/Public
+   - {home_dir}/node_modules
+   - {home_dir}/PersonalProjects
 
 2. SOURCE DIRECTORIES (Move unsorted files AWAY from these):
-   - /Users/erickosterloh/Documents
-   - /Users/erickosterloh/Downloads
-   - /Users/erickosterloh/Desktop
+   - {home_dir}/Documents
+   - {home_dir}/Downloads
+   - {home_dir}/Desktop
 
 3. TARGET DIRECTORIES (Where files should be moved TO):
-   - /Users/erickosterloh/ComputerScienceCourseWork
-   - /Users/erickosterloh/OtherSchoolWork
-   - /Users/erickosterloh/Misc
+   - {home_dir}/ComputerScienceCourseWork
+   - {home_dir}/OtherSchoolWork
+   - {home_dir}/Misc
 
 ### CURRENT FOLDER STRUCTURE
 Here is the current nested directory structure of your Target Directories. Use this to determine if a suitable folder already exists before creating a new one:
@@ -166,9 +167,10 @@ class BehindTheScenesSorter(FileSystemEventHandler):
         ##Alright now lets add ollama capatbilities. have it choose src_path 1 if some
         # it is a CS related title
 
-        if ("/Users/erickosterloh/Documents" in event.src_path or 
-            "/Users/erickosterloh/Downloads" in event.src_path or 
-            "/Users/erickosterloh/Desktop" in event.src_path):
+        home_dir = str(Path.home())
+        if (f"{home_dir}/Documents" in event.src_path or 
+            f"{home_dir}/Downloads" in event.src_path or 
+            f"{home_dir}/Desktop" in event.src_path):
         ## When an event happens in any of these three directories, these steps should happen
         ## First the event gets identified, we should then send it to the agent
         ## The agent will be given the event, along with the current file structure in that 
@@ -211,7 +213,7 @@ def passiveSort():
     """
     event_handler = BehindTheScenesSorter()
     observer = Observer()
-    observer.schedule(event_handler, "/Users/erickosterloh/.", recursive=True)
+    observer.schedule(event_handler, str(Path.home()), recursive=True)
     observer.start()
     try:
         while True:
@@ -227,9 +229,9 @@ def startupSort():
     """
     Runs when file sortagent.py is ran on python, sorts everything out of downloads and into the right spot.
     """
-    docs_path = Path("/Users/erickosterloh/Documents")
-    downloads_path = Path("/Users/erickosterloh/Downloads")
-    desktop_path = Path("/Users/erickosterloh/Desktop")
+    docs_path = Path.home() / "Documents"
+    downloads_path = Path.home() / "Downloads"
+    desktop_path = Path.home() / "Desktop"
     directpaths = [docs_path, downloads_path, desktop_path]
     
     for path in directpaths:

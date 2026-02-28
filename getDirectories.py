@@ -23,12 +23,11 @@ def get_directory_tree(path):
 
 if __name__ == "__main__":
     # Add the paths you want to scan here
+    home_dir = Path.home()
     directories_to_scan = [
-        "/Users/erickosterloh/ComputerScienceCourseWork",
-        "/Users/erickosterloh/OtherSchoolWork",
-        "/Users/erickosterloh/Misc",
-        # Example using the current AgenticSorter project folder:
-        # "/Users/erickosterloh/PersonalProjects/AgenticSorter"
+        str(home_dir / "ComputerScienceCourseWork"),
+        str(home_dir / "OtherSchoolWork"),
+        str(home_dir / "Misc"),
     ]
     
     overall_tree = {}
