@@ -22,5 +22,12 @@ Model:
     Old = mistral instruct 7B
     New = Llama 3 finetuned for tool coll 8B
 
-Project Structure:
+Setup:
+Run:
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python sorteragentV1.py
+```
 

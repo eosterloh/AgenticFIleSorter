@@ -1,7 +1,7 @@
 from docx import Document
 from PyPDF2 import PdfReader
 import typing
-
+import re
 
 
 def read_file_forLLM(filepath: str):
@@ -14,12 +14,12 @@ def read_file_forLLM(filepath: str):
     ext = filename.split(".")
 
 
-    if (ext[1] == ".txt" or ext[1] ==".md" or ext[1] ==".csv" or ext[1] ==".json" or ext[1] ==".py" or
-     ext[1] ==".js"):
+    if (ext[1] == "txt" or ext[1] =="md" or ext[1] =="csv" or ext[1] =="json" or ext[1] =="py" or
+     ext[1] =="js" or ext[1] == "html" or ext[1] == "txt" or ext[1] == "rmd"):
         return defaultopen(filepath)
-    elif(ext[1] == ".pdf"):
+    elif(ext[1] == "pdf"):
         return pdfopen(filepath)
-    elif(ext[1] == ".docx"):
+    elif(ext[1] == "docx"):
         return docxopen(filepath)
     else:
         #just sort these off file names, at the end we will want to list this so that 
@@ -29,7 +29,7 @@ def read_file_forLLM(filepath: str):
     
 
 
-def defaultopen(filepath):
+def defaultopen(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
@@ -41,16 +41,20 @@ def defaultopen(filepath):
         print(f"An error occurred: {e}")
 
 def pdfopen(filepath):
-    file = PdfReader(filepath)
-    page1 = file.pages[0]
-    print("PDF is being inserted into context.")
-    return page1.extract_text()
+    try:
+        file = PdfReader(filepath)
+        page1 = file.pages[0]
+        print("PDF is being inserted into context.")
+        return page1.extract_text()
+    except Exception as e:
+        print(f"Could not read PDF '{filepath}': {e}")
+        return None
 
 
 def docxopen(filepath):
     try:
         # Open the .docx file
-        document = docx.Document(filename)
+        document = Document(filepath)
         
         full_text = []
         # Iterate through paragraphs to extract text
@@ -64,7 +68,7 @@ def docxopen(filepath):
         words = re.findall(r'\w+', full_text_string)
         
         # Get the first n words
-        first_n_words_list = words[:n]
+        first_n_words_list = words[:1000]
         
         # Join the words back into a string with spaces
         first_n_words_string = ' '.join(first_n_words_list)
@@ -72,6 +76,6 @@ def docxopen(filepath):
         return first_n_words_string
 
     except FileNotFoundError:
-        return f"Error: The file '{filename}' was not found."
+        return f"Error: The file '{filepath}' was not found."
     except Exception as e:
         return f"An error occurred: {e}"
